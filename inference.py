@@ -247,7 +247,7 @@ def inference(network: LoRANetwork, tokenizer: CLIPTokenizer, text_encoder: CLIP
             pass
         scales = list(scales)
     else:
-        scales = ["ori"] + list(scales)
+        scales = ["Real Image"] + list(scales)
 
     if not no_load and os.path.exists(os.path.join(save_dir, "infer_imgs.pickle")):
         with open(os.path.join(save_dir, "infer_imgs.pickle"), 'rb') as f:
@@ -284,7 +284,7 @@ def inference(network: LoRANetwork, tokenizer: CLIPTokenizer, text_encoder: CLIP
         ori_prompt = batch["prompts"]
         image = batch["pixel_values"] if do_convert else None
         if do_convert:
-            pred_images["ori"] += image
+            pred_images["Real Image"] += image
         if isinstance(ori_prompt, list):
             if isinstance(text_encoder, CLIPTextModel):
                 # trunc prompts for clip encoder
@@ -301,7 +301,7 @@ def inference(network: LoRANetwork, tokenizer: CLIPTokenizer, text_encoder: CLIP
             if "seed" in batch:
                 single_seed = batch["seed"][0]
 
-        print(prompt, single_seed)
+        print(f"{prompt}, seed={single_seed}")
 
         # text_input = tokenizer(prompt, padding="max_length", max_length=tokenizer.model_max_length, truncation=True, return_tensors="pt").to(device)
         # original_embeddings = text_encoder(**text_input)[0]
@@ -381,7 +381,7 @@ def inference(network: LoRANetwork, tokenizer: CLIPTokenizer, text_encoder: CLIP
             all_seeds[scale] += [single_seed] * bcz
 
             end_time = time.time()
-            print(f"Time taken for one batch {scale}: {end_time-start_time}", flush=True)
+            print(f"Time taken for one batch, Art Adapter scale={scale}: {end_time-start_time}", flush=True)
 
         if save_dir is not None or show:
             end_idx = len(list(pred_images.values())[0])
@@ -397,16 +397,19 @@ def inference(network: LoRANetwork, tokenizer: CLIPTokenizer, text_encoder: CLIP
                     fig, ax = plt.subplots(1, len(images_list), figsize=(len(scales)*5,6), layout="constrained")
                     for id, a in enumerate(ax):
                         a.imshow(images_list[id])
-                        a.set_title(f"{keys[id]}", fontsize=20)
+                        if isinstance(scales[id], float) or isinstance(scales[id], int):
+                            a.set_title(f"Art Adapter scale={scales[id]}", fontsize=20)
+                        else:
+                            a.set_title(f"{keys[id]}", fontsize=20)
                         a.axis('off')
 
                     # plt.suptitle(f"{os.path.basename(lora_weight).replace('.pt','')}", fontsize=20)
 
                     # plt.tight_layout()
-                    if do_convert:
-                        plt.suptitle(f"{prompt}\nseed{single_seed}_start{start_noise}_guidance{guidance_scale}", fontsize=20)
-                    else:
-                        plt.suptitle(f"{prompt}\nseed{single_seed}_from_scratch_guidance{guidance_scale}", fontsize=20)
+                    # if do_convert:
+                    #     plt.suptitle(f"{prompt}\nseed{single_seed}_start{start_noise}_guidance{guidance_scale}", fontsize=20)
+                    # else:
+                    #     plt.suptitle(f"{prompt}\nseed{single_seed}_from_scratch_guidance{guidance_scale}", fontsize=20)
 
                 if save_dir is not None:
                     plt.savefig(f"{img_output_dir}/{prompt.replace(' ', '_')[:100]}_seed{single_seed}_start{start_noise}.png")
@@ -430,7 +433,7 @@ def inference(network: LoRANetwork, tokenizer: CLIPTokenizer, text_encoder: CLIP
             if (isinstance(scale, float) or isinstance(scale, int)): #and scale != 0:
                 used_prompt = prompts
             for i, image in enumerate(images):
-                if scale == "ori":
+                if scale == "Real Image":
                     suffix = ""
                 else:
                     suffix = f"_seed{all_seeds[scale][i]}"
@@ -448,7 +451,7 @@ def inference(network: LoRANetwork, tokenizer: CLIPTokenizer, text_encoder: CLIP
 def infer_metric(ref_image_folder,pred_images, prompts, save_dir, start_noise=""):
     prompts = [prompt.split(" in the style of ")[0] for prompt in prompts]
     scores = {}
-    original_images = pred_images["ori"] if "ori" in pred_images else None
+    original_images = pred_images["Real Image"] if "Real Image" in pred_images else None
     metric = StyleContentMetric(ref_image_folder)
     for scale, images in pred_images.items():
         score = metric(images, original_images, prompts)
