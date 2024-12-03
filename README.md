@@ -201,9 +201,13 @@ python inference.py --lora_weights <lora_location> --start_noise 800 --val_set l
 ## Citation
 If you find this useful for your research, please cite the following:
 ```bibtex
-@article{ren2024art-free},
-  author    = {Hui Ren and Joanna Materzynska and Rohit Gandikota and David Bau and Antonio Torralba},
-  title     = {Art-Free Generative Models: Art Creation Without Graphic Art Knowledge},
-  journal   = {arxiv},
-  year      = {2024},
+@misc{ren2024art-free,
+    title={Art-Free Generative Models: Art Creation Without Graphic Art Knowledge},
+    author={Hui Ren and Joanna Materzynska and Rohit Gandikota and David Bau and Antonio Torralba},
+    year={2024},
+    eprint={2412.00176},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV},
+    url={https://arxiv.org/abs/2412.00176},
+}
 ```
