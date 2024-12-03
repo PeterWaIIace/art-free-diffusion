@@ -12,7 +12,7 @@
 
 > <a href="">**Art-Free Generative Models: Art Creation Without Graphic Art Knowledge**</a>
 >
-<a href="https://rhfeiyang.top/" target="_blank">Hui Ren*</a>,
+<a href="https://rhfeiyang.github.io/" target="_blank">Hui Ren*</a>,
 <a href="https://joaanna.github.io/" target="_blank">Joanna Materzynska*</a>,
 <a href="https://rohitgandikota.github.io/" target="_blank">Rohit Gandikota</a>,
 <a href="https://baulab.info/" target="_blank">David Bau</a>,
